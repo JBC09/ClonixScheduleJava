@@ -1,11 +1,13 @@
 package com.example.springtest.service;
 
-import com.example.springtest.dto.UserDto;
+import com.example.springtest.dto.user.UserDto;
 import com.example.springtest.entity.UserEntity;
 import com.example.springtest.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -19,15 +21,37 @@ public class UserService {
     }
 
     public UserDto GetUserInfo(String userId) {
-        return new UserDto(userRepository.findByUserName(userId));
+
+        Optional<UserEntity> temp = userRepository.findByUserId(userId);
+        if(temp.isPresent()) {
+            log.info("Get User Info: " + temp.get());
+            return new UserDto(temp.get());
+
+        }
+        else {
+            log.info("User Not Found id: " + userId);
+            return new UserDto();
+        }
     }
 
-    public UserDto CreateUser(UserDto user){
+    public boolean CheckUser(String userId, String userPw) {
+        UserEntity temp = userRepository.findByUserId(userId).orElseThrow(()-> new UsernameNotFoundException("User Not Found id: " + userId));
 
-        log.info("Create User: " + user);
+        if(temp.getUserPw().equals(userPw)) {
+            log.info("User Login Success id: " + userId);
+            return true;
+        }
+        else {
+            log.info("User Login Success id: " + userId, " UserPw Not Match" + userPw);
+            return false;
+        }
+    }
+
+    public boolean CreateUser(UserDto user){
 
         userRepository.save(user.toEntity());
 
-        return user;
+        return true;
     }
+
 }

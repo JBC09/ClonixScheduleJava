@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AttendanceController {
 
     public AttendanceController() {
-
+        
     }
 
     @RequestMapping("/regist")
